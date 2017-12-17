@@ -1,20 +1,17 @@
 import pandas as pd
 import requests
-import configparser
 import matplotlib.pyplot as plt
+from data import DataModel
 
-class DataModel:
+class FinanceModel(DataModel):
 
     def __init__(self):
-        config = configparser.ConfigParser()
-        config.read('config.ini')
-        self.api_key = config['DEFAULT']['api_key']
-        self.quandl_url = config['DEFAULT']['quandl_url']
+        DataModel.__init__(self, 'QUANDL')
 
     def show_graph(self, dataset, params={}, label=None, title=''):
         params['api_key'] = self.api_key
         r = requests.get(
-            self.quandl_url + dataset + '.json',
+            self.api_url + dataset + '.json',
             params = params
         )
         response = r.json()
