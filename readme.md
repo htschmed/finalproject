@@ -3,7 +3,11 @@ Requires Python 3.5 or greater. Install packages using the following command aft
 
 `pip install -r requirements.txt`
 
-A configuration file called *config.ini* is also required in the root directory.  See the example ini file for settings
+A configuration file called *config.ini* is also required to be placed in the root directory.  See the example ini file for settings
+
+Once setup you may run the sample main program by entering the following command:
+
+`python main.py`
 
 # Function Definitions
 ## data.get_data_frame(start_date, end_date, dataset, interval,search_phrase, min_score, sample_size)
@@ -44,15 +48,21 @@ These columns are an aggregation of reddit data from previous row date to curren
 
 *m_low:* low median score of sampled posts
 
-## data.plot_graph(dataframe, label=None, title='')
+## data.plot_graph(dataframe, x_key, secondary_y=None, label=None, title='', top=None)
 
 **Arguments**
 
 *dataframe:* dataframe source from quandl time series dataset to plot a line graph
 
+*x_key:* column that should be mapped to the x-axis
+
+*secondary_y:* list of columns that can be added as a scaled secondary axis to y
+
 *label:* label the line data in the legend
 
 *title:* give a title to the graph
+
+*top:* adjust top of plot offset (useful for fitting long titles)
 
 # Sample Usage
 
