@@ -85,8 +85,10 @@ print(df)
 6 2011-12-31      4.995000     64  144.5   113   144.5     145    144
 7 2010-12-31      0.299999      1  180.0   180   180.0     180    180
 8 2009-12-31      0.000000      0   -1.0    -1    -1.0      -1     -1
->>> plot_graph(df, 'Bitcoin worth in USD', 'Price of Bitcoin from 1/1/2009 to 12/1/2017')
-plot_graph(df, 'Bitcoin worth in USD', 'Price of Bitcoin from 1/1/2009 to 12/1/2017')
+>>> plot_graph(df.loc[:,['Date','Value']], 'Date', None, ['Bitcoin worth in USD'],
+               'Price of Bitcoin from 1/1/2009 to 12/1/2017')
+plot_graph(df.loc[:,['Date','Value']], 'Date', None, ['Bitcoin worth in USD'],
+               'Price of Bitcoin from 1/1/2009 to 12/1/2017')
 </pre>
 
 # Data Sources
