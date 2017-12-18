@@ -99,6 +99,8 @@ def main():
             print('Invalid input entered...')
             continue
         try:
+            if selection == 0:
+                break;
             route_menu_selection(selection)
         except:
             print('Something went wrong during your selection process, please try again')
