@@ -6,7 +6,7 @@ Requires Python 3.5 or greater. Install packages using the following command aft
 A configuration file called *config.ini* is also required in the root directory.  See the example ini file for settings
 
 # Function Definitions
-##data.get_data_frame(start_date, end_date, dataset, interval,search_phrase, min_score, sample_size)
+## data.get_data_frame(start_date, end_date, dataset, interval,search_phrase, min_score, sample_size)
 **Arguments**
 
 *start_date:* start date of time perid to analyze, this is a string in the format of %Y-%m-%d 
@@ -44,7 +44,7 @@ These columns are an aggregation of reddit data from previous row date to curren
 
 *m_low:* low median score of sampled posts
 
-##data.plot_graph(dataframe, label=None, title='')
+## data.plot_graph(dataframe, label=None, title='')
 
 **Arguments**
 
