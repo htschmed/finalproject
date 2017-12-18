@@ -5,6 +5,55 @@ Requires Python 3.5 or greater. Install packages using the following command aft
 
 A configuration file called *config.ini* is also required in the root directory.  See the example ini file for settings
 
+# Function Definitions
+##data.get_data_frame(start_date, end_date, dataset, interval,search_phrase, min_score, sample_size)
+**Arguments**
+
+*start_date:* start date of time perid to analyze, this is a string in the format of %Y-%m-%d 
+
+*end_date:* end date of of time perid to analyze, this is a string in the format of %Y-%m-%d
+
+*dataset:* dataset code found at https://www.quandl.com/search
+
+*interval:* string that specifies the data point intervals.  Acceptable values are "annual", "quarterly", "monthly"
+
+*search_phrase:* string that specifies the reddit search phrase to find in post titles for statistical analysis
+
+*min_score:* minimum score of reddit post to include in search query
+
+*sample_size:* maximum number of reddit posts to pull for score analysis. Sample will always start with highest scores first
+
+**Return Value**
+
+Function returns a pandas dataframe with the following columns:
+
+*Date:* date of quandl dataset series
+*Value:* value of quandl dataset series
+
+These columns are an aggregation of reddit data from previous row date to current row date 
+
+*total:* total number or reddit posts
+
+*mean:* mean score of sampled posts
+
+*mode:* mode score of sampled posts
+
+*median:* median score of sampled posts
+
+*m_high:* high median score of sampled posts
+
+*m_low:* low median score of sampled posts
+
+##data.plot_graph(dataframe, label=None, title='')
+
+**Arguments**
+
+*dataframe:* dataframe source from quandl time series dataset to plot a line graph
+
+*label:* label the line data in the legend
+
+*title:* give a title to the graph
+
 # Sample Usage
 
 <pre>
