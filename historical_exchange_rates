@@ -392,7 +392,6 @@ def buybit():
         return primary_Indicator
         
 
-exportExchCSV()
 
         
     
