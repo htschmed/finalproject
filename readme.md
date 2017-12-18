@@ -89,7 +89,7 @@ print(df)
 plot_graph(df, 'Bitcoin worth in USD', 'Price of Bitcoin from 1/1/2009 to 12/1/2017')
 </pre>
 
-#Data Sources
+# Data Sources
 
 Quandl - https://www.quandl.com/search
 
