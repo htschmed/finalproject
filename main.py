@@ -3,7 +3,7 @@ from data import get_data_frame, plot_graph
 def print_btc_value(start_date, end_date, interval, min_score=100, sample_size=100):
     print('\n')
     print('Retrieving data, please wait...')
-    df = get_data_frame(start_date, end_date, 'BCHAIN/MKPRU', 'annual', 'bitcoin', min_score, sample_size)
+    df = get_data_frame(start_date, end_date, 'BCHAIN/MKPRU', interval, 'bitcoin', min_score, sample_size)
     print('\n')
     print('This table shows the value of bitcoin and the Reddit statistics for posts containing "bitcoin"')
     print('\n')
