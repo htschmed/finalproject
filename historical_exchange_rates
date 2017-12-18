@@ -1,0 +1,408 @@
+import requests
+import numpy as np
+import pandas as pd
+from datetime import datetime, timedelta
+
+
+class ExchangeRate:
+    def __init__(self,date,country,rate):
+        self.date = date
+        self.country = country
+        self.rate = float(rate)
+    
+    def setDate(self, date):
+        self.date = date
+    
+    def getDate(self):
+        return self.date
+    
+    def setCountry(self, country):
+        self.country = country
+    
+    def getCountry(self):
+        return self.country
+    
+    def setRate(self, rate):
+        self.rate = float(rate)
+    
+    def  getRate(self):
+        return float(self.rate)
+    
+    def __str__(self):
+        return str(self.date) + "\t"  +  self.country + "\t" + str(self.rate)  
+
+
+class Country_Stats:
+    def __init__(self,country_name, data):
+        self.country_name = country_name
+        self.data = countryRates(country_name)
+    
+    def setCountry(self,country_name):
+        self.country_name = country_name
+    
+    def getCountry(self):
+        return self.country_name
+    
+    def setData(self,data):
+        self.data = data
+    
+    def getData(self):
+        return self.data
+    
+    # function to calculate standard deviation
+    def StdDev(self):
+        rate_list = []
+        for i in self.data:
+            rate_list.append(i.getRate())
+        rate_array = np.array(rate_list)
+        SD = np.std(rate_array)
+        return SD
+    
+    # function to calculate volatility of currency
+    def Volatility(self):
+        rate_list = []
+        fix_error_list = []
+        for i in self.data:
+            rate_list.append(i.getRate())
+        rate_array = np.array(rate_list)
+        cmax = float(np.amax(rate_array))
+        cmin = float(np.amin(rate_array))
+        # put max and min values in list to get past JSON error
+        fix_error_list.append(cmax)
+        fix_error_list.append(cmin)
+        cmax = float(fix_error_list[0])
+        cmin = float(fix_error_list[1])
+        volat = (cmax - cmin)/cmax
+        return volat
+        
+def currentRates():
+    # create dictionary of exchange rates from fixer.io API
+    exchange_rates = requests.get("https://api.fixer.io/latest?base=USD").json()
+    exchange = exchange_rates['rates']
+
+
+    # create Country List
+    countrykey = exchange.keys()
+    country = []
+
+    for i in countrykey:
+      country.append(i)
+
+    # create Currency Value List
+    values = exchange.values()
+    exchange_values = []
+    for i in values:
+      exchange_values.append(i)
+  
+    # Create two columns showing data
+    xarray = np.array(country)
+    yarray = np.array(exchange_values)
+
+    data = np.array([xarray, yarray])
+    data = data.T
+    
+    a = ExchangeRate(datetime.date(1943,3,13),'CRP', 0.65)
+    print(a.__str__())
+
+
+# Function to loop through last 30 days of currency rates and save as objects
+def historicalRates():
+    exchange = []
+    exchange_objects = []
+    StartDate = LastMonth().date()
+    exchange_rates = requests.get("https://api.fixer.io/" + str(StartDate) + "?base=USD").json()
+    exchange = exchange_rates['rates']
+    daycount = 0
+    for i in range(30):
+        exchange_rates = requests.get("https://api.fixer.io/" + str(StartDate) + "?base=USD").json()
+        exchange = exchange_rates['rates']
+        countrykey = exchange.keys()
+        country = []
+        values = exchange.values()
+        exchange_values = []
+        
+        for i in countrykey:
+            country.append(i)
+            
+            
+        for i in values:
+            exchange_values.append(i)
+        
+        count = 0
+        for i in exchange:
+            rate_object = ExchangeRate(StartDate,country[count],exchange_values[count])
+            exchange_objects.append(rate_object)
+            count = count + 1
+       
+        StartDate = LastMonth().date() + timedelta(days=daycount)
+        daycount = daycount + 1
+    
+    return exchange_objects
+
+def countryRates(country_symbol):
+    exchange = []
+    exchange_objects = []
+    StartDate = LastMonth().date()
+    exchange_rates = requests.get("https://api.fixer.io/" + str(StartDate) + "?base=USD").json()
+    exchange = exchange_rates['rates']
+    daycount = 0
+    
+    # Loop through last 30 days of API data and create objects based on country symbol
+    for i in range(30):
+        exchange_rates = requests.get("https://api.fixer.io/" + str(StartDate) + "?base=USD").json()
+        exchange = exchange_rates['rates']
+        countrykey = exchange.keys()
+        country = []
+        values = exchange.values()
+        exchange_values = []
+        
+        for i in countrykey:
+            country.append(i)
+            
+            
+        for i in values:
+            exchange_values.append(i)
+        
+        count = 0
+        for i in exchange:
+            if country[count]==country_symbol:
+                rate_object = ExchangeRate(StartDate,country[count],exchange_values[count])
+                exchange_objects.append(rate_object)
+            count = count + 1
+       
+        StartDate = LastMonth().date() + timedelta(days=daycount)
+        daycount = daycount + 1
+    
+    return exchange_objects
+    
+
+def LastMonth():
+    LM = datetime.today() - timedelta(days=30)
+    return LM
+    
+
+# function to export historical rates to csv    
+def exportExchCSV():
+    olist = historicalRates()
+    edatelist = []
+    countrylist = []
+    ratelist = []
+    
+    for i in olist:
+        countrylist.append(i.getCountry())
+        edatelist.append(i.getDate())
+        ratelist.append(i.getRate())
+    
+    df = pd.DataFrame(data={"Date": edatelist, "Country": countrylist, "Rate": ratelist})
+    df.to_csv("historical_rates.csv", sep=",",index = False)
+
+# functon to determine if any currency is experiencing collapse signals
+# conditions are if Volatility > 10% and standard deviation > 5
+
+
+# create country objects and add to list
+def buybit():
+    sdevList = []
+    volList = []
+    sdevIndicator = False
+    volIndicator = False
+    primary_Indicator = False
+    try:
+        IDR_data = countryRates('IDR')
+        Indonesia = Country_Stats('IDR',IDR_data)
+        ISD = Indonesia.StdDev()
+        IDRVol=Indonesia.Volatility()
+
+        KRW_data = countryRates('KRW')
+        South_Korea = Country_Stats('KRW',KRW_data)
+        SKSD = South_Korea.StdDev()
+        KRWVol=South_Korea.Volatility()
+
+        HUF_data = countryRates('HUF')
+        Hungary = Country_Stats('HUF',HUF_data)
+        HSD = Hungary.StdDev()
+        HUFVol=Hungary.Volatility()
+
+        JPY_data = countryRates('JPY')
+        Japan = Country_Stats('JPY',JPY_data)
+        JPSD = Japan.StdDev()
+        JPYVol=Japan.Volatility()
+
+        RUB_data = countryRates('RUB')
+        Russia = Country_Stats('RUB',RUB_data)
+        RSD = Russia.StdDev()
+        RUBVol=Russia.Volatility()
+
+        INR_data = countryRates('INR')
+        India = Country_Stats('INR',INR_data) 
+        IndSD = India.StdDev()
+        INRVol=India.Volatility()
+
+        MXN_data = countryRates('MXN')
+        Mexico = Country_Stats('MXN',MXN_data) 
+        MexSD = Mexico.StdDev()
+        MXNVol=Mexico.Volatility()
+
+        ZAR_data = countryRates('ZAR')
+        South_Africa = Country_Stats('ZAR',ZAR_data) 
+        SASD = South_Africa.StdDev()
+        ZARVol=South_Africa.Volatility()
+
+        PHP_data = countryRates('PHP')
+        Phillipines = Country_Stats('PHP',PHP_data) 
+        PhilSD = Phillipines.StdDev()
+        PHPVol=Phillipines.Volatility()
+
+        CZK_data = countryRates("CZK")
+        Czech= Country_Stats("CZK",CZK_data)
+        CZKSD=Czech.StdDev()
+        CZKVol=Czech.Volatility()
+
+        THB_data = countryRates("THB")
+        Thailand= Country_Stats("THB",THB_data)
+        THBSD=Thailand.StdDev()
+        THBVol=Thailand.Volatility()
+
+        NOK_data = countryRates("NOK")
+        Norway= Country_Stats("NOK",NOK_data)
+        NOKSD=Norway.StdDev()
+        NOKVol=Norway.Volatility()
+
+        SEK_data = countryRates("SEK")
+        Swedend= Country_Stats("SEK",SEK_data)
+        SEKSD=Swedend.StdDev()
+        SEKVol=Swedend.Volatility()
+
+        TRY_data = countryRates("TRY")
+        Turkey= Country_Stats("TRY",TRY_data)
+        TRYSD=Turkey.StdDev()
+        TRYVol=Turkey.Volatility()
+
+        HRK_data = countryRates("HRK")
+        Croatia= Country_Stats("HRK",HRK_data)
+        HRKSD=Croatia.StdDev()
+        HRKVol=Croatia.Volatility()
+
+        BRL_data = countryRates("BRL")
+        Brazil= Country_Stats("BRL",BRL_data)
+        BRLSD=Brazil.StdDev()
+        BRLVol=Brazil.Volatility()
+
+        DKK_data = countryRates("DKK")
+        Denmark= Country_Stats("DKK",DKK_data)
+        DKKSD=Denmark.StdDev()
+        DKKVol=Denmark.Volatility()
+
+        MYR_data = countryRates("MYR")
+        Malaysia= Country_Stats("MYR",MYR_data)
+        MYRSD=Malaysia.StdDev()
+        MYRVol=Malaysia.Volatility()
+
+        RON_data = countryRates("RON")
+        Romania= Country_Stats("RON",RON_data)
+        RONSD=Romania.StdDev()
+        RONVol=Romania.Volatility()
+
+        PLN_data = countryRates("PLN")
+        Poland= Country_Stats("PLN",PLN_data)
+        PLNSD=Poland.StdDev()
+        PLNVol=Poland.Volatility()
+
+        ILS_data = countryRates("ILS")
+        Israel= Country_Stats("ILS",ILS_data)
+        ILSSD=Israel.StdDev()
+        ILSVol=Israel.Volatility()
+
+        CNY_data = countryRates("CNY")
+        China= Country_Stats("CNY",CNY_data)
+        CNYSD=China.StdDev()
+        CNYVol=China.Volatility()
+
+        NZD_data = countryRates("NZD")
+        New_Zealand= Country_Stats("NZD",NZD_data)
+        NZDSD=New_Zealand.StdDev()
+        NZDVol=New_Zealand.Volatility()
+
+        BGN_data = countryRates("BGN")
+        Bulgaria= Country_Stats("BGN",BGN_data)
+        BGNSD=Bulgaria.StdDev()
+        BGNVol=Bulgaria.Volatility()
+
+        AUD_data = countryRates("AUD")
+        Australia= Country_Stats("AUD",AUD_data)
+        AUDSD=Australia.StdDev()
+        AUDVol=Australia.Volatility()
+
+        CAD_data = countryRates("CAD")
+        Canada= Country_Stats("CAD",CAD_data)
+        CADSD=Canada.StdDev()
+        CADVol=Canada.Volatility()
+
+        GBP_data = countryRates("GBP")
+        Great_Britain= Country_Stats("GBP",GBP_data)
+        GBPSD=Great_Britain.StdDev()
+        GBPVol=Great_Britain.Volatility()
+
+        CHF_data = countryRates("CHF")
+        Switzerland= Country_Stats("CHF",CHF_data)
+        CHFSD=Switzerland.StdDev()
+        CHFVol=Switzerland.Volatility()
+
+        EUR_data = countryRates("EUR")
+        Euro= Country_Stats("EUR",EUR_data)
+        EURSD=Euro.StdDev()
+        EURVol=Euro.Volatility()
+
+        SGD_data = countryRates("SGD")
+        Singapore= Country_Stats("SGD",SGD_data)
+        SGDSD=Singapore.StdDev()
+        SGDVol=Singapore.Volatility()
+
+        HKD_data = countryRates("HKD")
+        Hong_Kong= Country_Stats("HKD",HKD_data)
+        HKDSD=Hong_Kong.StdDev()
+        HKDVol=Hong_Kong.Volatility()
+
+
+        sdevList = [ISD,SKSD,HSD,JPSD,RSD,IndSD,MexSD,SASD,PhilSD,
+                    CZKSD,THBSD,NOKSD,SEKSD,TRYSD,HRKSD,BRLSD,DKKSD,MYRSD,
+                    RONSD,PLNSD,ILSSD,CNYSD,NZDSD,BGNSD,AUDSD,CADSD,
+                    GBPSD,CHFSD,EURSD,SGDSD,HKDSD]
+        
+        volList = [IDRVol,KRWVol,HUFVol,JPYVol,RUBVol,INRVol,MXNVol,
+                   ZARVol,PHPVol,CZKVol,THBVol,NOKVol,SEKVol,TRYVol,
+                   HRKVol,BRLVol,DKKVol,MYRVol,RONVol,PLNVol,ILSVol,
+                   CNYVol,NZDVol,BGNVol,AUDVol,CADVol,GBPVol,
+                   CHFVol,EURVol,SGDVol,HKDVol]
+        
+        for i in sdevList:
+            if i >= 5:
+                sdevIndicator = True
+        
+        for i in volList:
+            if i >= .10:
+                volIndicator = True
+        
+        if sdevIndicator==True and volIndicator==True:
+            primary_Indicator = True
+        
+        return primary_Indicator
+               
+    except:
+        return primary_Indicator
+        
+
+exportExchCSV()
+
+        
+    
+    
+
+
+
+
+
+
+
+
+
