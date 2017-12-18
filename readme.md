@@ -19,7 +19,7 @@ A configuration file called *config.ini* is also required in the root directory.
 
 *search_phrase:* string that specifies the reddit search phrase to find in post titles for statistical analysis
 
-*min_score:* minimum score of reddit post to include in search query
+*min_score:* minimum score of reddit posts to include in search query
 
 *sample_size:* maximum number of reddit posts to pull for score analysis. Sample will always start with highest scores first
 
