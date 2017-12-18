@@ -9,6 +9,8 @@ Once setup you may run the sample main program by entering the following command
 
 `python main.py`
 
+Demo at https://youtu.be/XiP74QLCn2Q
+
 # Function Definitions
 ## data.get_data_frame(start_date, end_date, dataset, interval,search_phrase, min_score, sample_size)
 **Arguments**
@@ -86,3 +88,9 @@ print(df)
 >>> plot_graph(df, 'Bitcoin worth in USD', 'Price of Bitcoin from 1/1/2009 to 12/1/2017')
 plot_graph(df, 'Bitcoin worth in USD', 'Price of Bitcoin from 1/1/2009 to 12/1/2017')
 </pre>
+
+#Data Sources
+
+Quandl - https://www.quandl.com/search
+
+Reddit - https://www.reddit.com/r/redditdev/comments/64cs5u/new_pushshift_api_endpoint_all_reddit_submissions/
