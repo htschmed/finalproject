@@ -30,9 +30,9 @@ class RedditModel(DataModel):
             scores.append(row['_source']['score'])
 
         stats_result = {}
-        stats_result['total'] = response['hits']['total']
+        stats_result['posts'] = response['hits']['total']
         try:
-            stats_result['mean'] = median(scores)
+            stats_result['mean'] = mean(scores)
         except StatisticsError:
             stats_result['mean'] = -1
         try:

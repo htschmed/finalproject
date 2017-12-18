@@ -32,7 +32,7 @@ Function returns a pandas dataframe with the following columns:
 
 These columns are an aggregation of reddit data from previous row date to current row date 
 
-*total:* total number or reddit posts
+*posts:* total number or reddit posts
 
 *mean:* mean score of sampled posts
 

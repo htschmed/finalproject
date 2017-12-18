@@ -43,12 +43,22 @@ def get_data_frame(start_date, end_date, dataset, interval,
         reddit_df_data[k] = []
         for row in reddit_data:
             reddit_df_data[k].append(row[k])
-    df2 = pd.DataFrame(reddit_df_data, columns=response_data.keys())
+    df2 = pd.DataFrame(reddit_df_data, columns=['posts', 'mean', 'mode', 'median', 'm_high', 'm_low'])
     df3 = pd.concat([df, df2], axis=1)
     return df3
 
-def plot_graph(dataframe, label=None, title=''):
-    ax = dataframe.plot(x='Date', y='Value', title=title)
-    if label is not None:
-        ax.legend([label])
+def plot_graph(dataframe, x_key, secondary_y=None, label=None, title='', top=None):
+    if secondary_y is not None:
+        ax = dataframe.plot(x=x_key, secondary_y=secondary_y, title=title)
+    else:
+        ax = dataframe.plot(x=x_key, title=title)
+
+    lines, labels = ax.get_legend_handles_labels()
+
+    if secondary_y is None:
+        if label is not None:
+            ax.legend(label)
+
+    if top is not None:
+        plt.subplots_adjust(top=top)
     plt.show()
