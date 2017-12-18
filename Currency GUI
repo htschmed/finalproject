@@ -1,0 +1,24 @@
+
+from tkinter import *
+from daily_rate import *
+from currency_rate_history import exportExchCSV
+
+
+def getRates():
+    label2.pack(expand=YES, fill=BOTH)
+
+
+root = Tk()
+frame = Frame(root)
+label = Label(frame, text="Current Exchange Rates")
+label2 = Label(text = currentRates())
+button1 = Button(frame, text = "Todays Rates",command=getRates)
+button2 = Button(frame, text = "Export Historical Rates",command=exportExchCSV())
+
+frame.pack()
+label.pack()
+button1.pack()
+button2.pack()
+
+
+root.mainloop()
